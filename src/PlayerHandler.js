@@ -44,15 +44,17 @@ export default function(castPlayer) {
 	//};
 
     this.play = function() {
-        console.log([' PLAY ',castPlayer.playerState])
+        console.log(['PLAYER HANDLER  PLAY ',castPlayer.playerState])
 		// if new media, load it
 		if (castPlayer.playerState !== PLAYER_STATE.PLAYING &&
             castPlayer.playerState !== PLAYER_STATE.PAUSED &&
             castPlayer.playerState !== PLAYER_STATE.LOADED) {
-				console.log(['PLAY load file ',castPlayer.props.media])
+				console.log(['PLAYER HANDLER PLAY load file ',castPlayer.props.media])
 				//castPlayer.playerState = PLAYER_STATE.PLAYING;
 				this.load(castPlayer.props.media);
 		} else {
+			console.log(['PLAYER HANDLER PLAY loaded file  ',castPlayer.props.media])
+				
 			this.target.play();
 			castPlayer.playerState = PLAYER_STATE.PLAYING;
 			if (castPlayer.props.onPlay) castPlayer.props.onPlay()
@@ -87,7 +89,7 @@ export default function(castPlayer) {
 		if (this.target.disconnect) this.target.disconnect();
 	}
 
-    this.load = function(media) {
+    this.load = function(media,autoPlay) {
 		console.log(['PLAYER HANDLER load ',media])
 		castPlayer.playerState = PLAYER_STATE.LOADING;
 		//if (castPlayer.props.onPause) castPlayer.props.onPause()
@@ -99,12 +101,13 @@ export default function(castPlayer) {
         //document.getElementById('media_desc').innerHTML =
             //castPlayer.mediaContents[castPlayer.currentMediaIndex]['description'];
 
-        this.target.load(media);
+        this.target.load(media,autoPlay);
         this.updateDisplayMessage();
     };
 
-    this.loaded = function() {
-		console.log(['PLAYER HANDLER loaded',castPlayer])
+    this.loaded = function(autoPlay) {
+		let that = this;
+		console.log(['PLAYER HANDLER loaded',castPlayer.props])
 		//let oldState = castPlayer.playerState;
         castPlayer.currentMediaDuration = this.getMediaDuration();
         //  castPlayer.updateMediaDuration();
@@ -113,10 +116,12 @@ export default function(castPlayer) {
             console.log(['PLAYER HANDLER loaded seek to',castPlayer.props.seekTo])
             this.seekTo(castPlayer.props.seekTo);
         }
-        if (!castPlayer.props.isPlaying) {
+        if (!autoPlay) { //castPlayer.props.isPlaying) {
 		    console.log(['PLAYER HANDLER no start playing'])
-            //this.play();
-			//this.pause();
+            this.play();
+			setTimeout(function() {
+				that.pause();
+			},500);
 		} else {
 		    console.log(['PLAYER HANDLER start playing'])
         	this.play();
@@ -138,22 +143,21 @@ export default function(castPlayer) {
     }
 ;
     this.setVolume = function(volumeSliderPosition) {
+		console.log(['PLAYER HANDLER SET VOLUME',volumeSliderPosition,castPlayer.props.onVolume])
         this.target.setVolume(volumeSliderPosition);
 		if (castPlayer.props.onVolume) castPlayer.props.onVolume(volumeSliderPosition)
     };
 
     this.mute = function() {
+        console.log(['PLAYER HANDLER MUTE'])
         this.target.mute();
         if (castPlayer.props.onMute) castPlayer.props.onMute(true)
-        //document.getElementById('audio_on').style.display = 'none';
-        //document.getElementById('audio_off').style.display = 'block';
     };
 
     this.unMute = function() {
+        console.log(['PLAYER HANDLER UNMUTE'])
         this.target.unMute();
         if (castPlayer.props.onMute) castPlayer.props.onMute(false)
-        //document.getElementById('audio_on').style.display = 'block';
-        //document.getElementById('audio_off').style.display = 'none';
     };
 
     this.isMuted = function() {
@@ -164,9 +168,7 @@ export default function(castPlayer) {
          console.log(['PLAYER HANDLER seek',time])
          this.target.seekTo(time);
          castPlayer.currentMediaTime = time;
-         if (castPlayer.props.onProgress) castPlayer.props.onProgress(time)
-        
+         if (castPlayer.props.onProgress) castPlayer.props.onProgress(time)        
         //this.updateDisplayMessage();
-        
     };
 };

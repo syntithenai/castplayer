@@ -80,7 +80,7 @@ export default  class CastPlayer extends Component {
 	// return false to prevent rerendering
 	
 	shouldComponentUpdate(props) {
-		console.log(['CAST PLAYER should updaate????'])
+		//console.log(['CAST PLAYER should updaate????'])
 
 		if (props.media != this.props.media) {
 			console.log(['CAST PLAYER media change',props.media])
@@ -184,36 +184,38 @@ export default  class CastPlayer extends Component {
 	
 	switchPlayer = function() {
 		console.log(['SWITCH PLAYER'])
-
+		let autoPlay = this.props.isPlaying; //(this.playerState === PLAYER_STATE.PLAYING);
 		//this.stopProgressTimer();
 		//this.resetVolumeSlider();
 		this.playerHandler.stop();
 		this.playerState = PLAYER_STATE.IDLE;
+		let seekTo = this.props.seekTo - 5 > 0 ? this.props.seekTo - 5 : 0;
+		this.props.onProgress(seekTo); 
 		if (cast && cast.framework) {
 			if (this.remotePlayer.isConnected) {
 				console.log(['SWITCH PLAYER REMOTE'])
 				this.props.onCast(true)
-				this.setupRemotePlayer();
+				this.setupRemotePlayer(autoPlay);
 				return;
 			}
 		}
 		console.log(['SWITCH PLAYER LOCAL'])
 		this.props.onCast(false)
-		this.setupLocalPlayer(true);
+		this.setupLocalPlayer(autoPlay,true);
 	};
 	
 
 	/**
 	 * Callback when media is loaded in local player
 	 */
-	onMediaLoadedLocally = function() {
+	onMediaLoadedLocally = function(autoPlay) {
 		console.log(['MEDIA LOADED LOCALLY',this.currentMediaTime])
 		//var localPlayer = document.getElementById('video_element');
 		var localPlayer = this.mediaRef.current; 
 		//var localPlayer = this._player.current; 
 		//localPlayer.currentTime = this.currentMediaTime;
 		//localPlayer.seekTo(this.currentMediaTime);
-		this.playerHandler.loaded();
+		this.playerHandler.loaded(autoPlay);
 	};
 
 		
@@ -233,7 +235,7 @@ export default  class CastPlayer extends Component {
 	/**
 	 * Set the PlayerHandler target to use the video-element player
 	 */
-	setupLocalPlayer = function (alreadyLoaded) {
+	setupLocalPlayer = function (autoPlay,alreadyLoaded) {
 		let that = this;
 		var localPlayer = this.mediaRef.current; 
 		console.log(['SETUP LOCAL PLAYER',localPlayer])
@@ -272,7 +274,7 @@ export default  class CastPlayer extends Component {
 			localPlayer.pause();
 		};
 
-		playerTarget.load = function(media) {
+		playerTarget.load = function(media,autoPlay) {
 			localPlayer.src = media ? media.url : '';
 			//	this.mediaContents[mediaIndex]['sources'][0];
 			localPlayer.load();
@@ -320,9 +322,9 @@ export default  class CastPlayer extends Component {
 		this.playerHandler.setTarget(playerTarget);
 		if (!alreadyLoaded) { 
 			localPlayer.addEventListener(
-				'loadeddata', this.onMediaLoadedLocally.bind(this));
+				'loadeddata', function(e) {that.onMediaLoadedLocally.bind(that)(autoPlay)});
 		} else {
-			this.playerHandler.loaded();
+			this.playerHandler.loaded(autoPlay);
 		}
 		//DEFAULT_VOLUME * FULL_VOLUME_HEIGHT
 		//this.playerHandler.setVolume(this.props.volume);
@@ -337,7 +339,7 @@ export default  class CastPlayer extends Component {
 	/**
 	 * Set the PlayerHandler target to use the remote player
 	 */
-	setupRemotePlayer = function () {
+	setupRemotePlayer = function (autoPlay) {
 		console.log(['SETUP REMOTE PLAYER',this.props])
 		var castSession = cast.framework.CastContext.getInstance().getCurrentSession();
 
@@ -420,7 +422,7 @@ export default  class CastPlayer extends Component {
 		}.bind(this);
 
 
-		playerTarget.load = function (media) {
+		playerTarget.load = function (media,autoPlay) {
 			console.log('Loading...' + media.title);
 			var mediaInfo = new chrome.cast.media.MediaInfo(media.url, 'video/mp4');
 
@@ -431,7 +433,7 @@ export default  class CastPlayer extends Component {
 
 			var request = new chrome.cast.media.LoadRequest(mediaInfo);
 			castSession.loadMedia(request).then(
-				this.playerHandler.loaded.bind(this.playerHandler),
+				this.playerHandler.loaded.bind(this.playerHandler)(autoPlay),
 				function (errorCode) {
 					this.playerState = PLAYER_STATE.ERROR;
 					console.log('Remote media load error: ' +
@@ -494,6 +496,7 @@ export default  class CastPlayer extends Component {
 		}.bind(this);
 
 		playerTarget.seekTo = function (time) {
+			console.log(['REMOATE SEEK',time]);
 			this.remotePlayer.currentTime = time;
 			this.remotePlayerController.seek();
 		}.bind(this);
@@ -517,16 +520,16 @@ export default  class CastPlayer extends Component {
 			//this.playerHandler.play();
 		//}
 		console.log(['REMOTE NOW LOAD',this.props.media])
-		this.playerHandler.load(this.props.media);
+		this.playerHandler.load(this.props.media,autoPlay);
 	};
 
 	/**
 	 * Starts the timer to increment the media progress bar
 	 */
 	startProgressTimer = function() {
-		console.log('start timer');
 		this.stopProgressTimer();
-
+		console.log('start timer');
+		
 		// Start progress timer
 		this.timer = setInterval(this.incrementMediaTime, 1000);
 	};
@@ -535,6 +538,7 @@ export default  class CastPlayer extends Component {
 	 * Stops the timer to increment the media progress bar
 	 */
 	stopProgressTimer = function() {
+		console.log('stop timer');
 		if (this.timer) {
 			clearInterval(this.timer);
 			this.timer = null;
@@ -614,16 +618,18 @@ export default  class CastPlayer extends Component {
 			//playerStyle.display = 'none'
 		//}
 		//{<google-cast-launcher id="castbutton" style={castButtonStyle}></google-cast-launcher>}
-				
+			console.log(this.props.media);	
+			let type = this.props.media.type === 'audio' ? 'audio' : 'video'
         return  <div style={wrapperStyle} >
 				
 				<div style={{opacity:1,zIndex:101}} onClick={this.togglePlayback} >
-					<video  ref={this.mediaRef} src={currentUrl} style={playerStyle} {...extraParams} />
+					{type === "video" && <video  ref={this.mediaRef} src={currentUrl} style={playerStyle} {...extraParams} />}
+					{type === "audio" && <audio  ref={this.mediaRef} src={currentUrl} style={playerStyle} {...extraParams} />}
 				</div>
 			</div>
     };
 }
-
+//{true || this.props.media.type === "video" && 
 	  
 	/**
 	 * Makes human-readable message from chrome.cast.Error

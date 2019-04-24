@@ -59,10 +59,12 @@
     "dist",
     "src/CastPlayer.js",
     "src/CastPlayerControls.js",
+    "src/CastPlayerController.js",
     "src/PlayerHandler.js",
     "src"
   ],
   "dependencies": {
+    "md5": "^2.2.1",
     "react-icons": "^3.6.1"
   }
 }

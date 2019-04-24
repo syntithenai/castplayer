@@ -17,5 +17,12 @@ export default   [
             'thumb' : 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg',
             'title' : 'For Bigger Blazes',
             'artist': 'Big Blaze'
+        },
+        
+        {'url' : 'https://mp3d.jamendo.com/?trackid=475356&format=mp33&from=app-97dab294',
+            'thumb' : 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg',
+            'title' : 'Jamendo',
+            'artist': 'Track'
         }
+
 ]
