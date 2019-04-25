@@ -3,7 +3,7 @@
 /* global chrome */
 
 import React, { Component } from 'react';
-
+import ReactPlayer from 'react-player'
 //import { Component } from 'react';
 //import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'
 import PLAYER_STATE from './playerStateConstants';
@@ -606,7 +606,7 @@ export default  class CastPlayer extends Component {
         let wrapperStyle={position: 'fixed',top:0,left:0,bottom:0,right:0,width: '100%',height: '100%',backgroundColor:'black',zIndex: 99}
 		
 		let extraParams={};
-        if (this.props.isPlaying) extraParams={autoplay:'autoplay'}
+        if (this.props.isPlaying) extraParams={playing:true}
         let playerStyle={height:'100%',width:'100%'};
 
 		let hideCastButton = this.playerHandler.targetType === 'remote' ? true :false
@@ -623,12 +623,13 @@ export default  class CastPlayer extends Component {
         return  <div style={wrapperStyle} >
 				
 				<div style={{opacity:1,zIndex:101}} onClick={this.togglePlayback} >
-					{type === "video" && <video  ref={this.mediaRef} src={currentUrl} style={playerStyle} {...extraParams} />}
-					{type === "audio" && <audio  ref={this.mediaRef} src={currentUrl} style={playerStyle} {...extraParams} />}
+					<ReactPlayer url={currentUrl} {...extraParams} />
 				</div>
 			</div>
     };
 }
+//{type === "video" && <video  ref={this.mediaRef} src={currentUrl} style={playerStyle} {...extraParams} />}
+	//				{type === "audio" && <audio  ref={this.mediaRef} src={currentUrl} style={playerStyle} {...extraParams} />}
 //{true || this.props.media.type === "video" && 
 	  
 	/**
