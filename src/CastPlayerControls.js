@@ -39,7 +39,7 @@ export default  class CastPlayerControls extends Component {
 	}
 	
 	componentDidMount() {
-		console.log(['CAST PLAYER controls mount ',this.props])
+	//	console.log(['CAST PLAYER controls mount ',this.props])
 	}
 	
 	play() {

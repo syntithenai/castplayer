@@ -51,20 +51,20 @@ export default class CastPlayerController extends Component {
 	componentDidMount() {
 		// temp disable
 			this.mediaKey = md5(this.getCurrentMedia());
-			//let progress = localStorage.getItem('progress_'+this.mediaKey);
-			//let playing = localStorage.getItem('isPlaying');
-			//let volume = localStorage.getItem('volume');
-			//let mute = localStorage.getItem('mute');
-			//let currentTrack = localStorage.getItem('currentTrack');
-			//let newState = {}
-			//newState.seekTo = (progress != null ? progress : 0)
-			//newState.currentTrack = (currentTrack != null ? currentTrack : 0)
-			//newState.isPlaying = ((playing ==='1') ? true : false)
-			//newState.volume = (volume ? volume : 50)
-			//newState.mute = ((mute ==='1') ? true : false)
-			////if (newState.mute) this.player.playerHandler.mute();
-			//console.log(['CONTROLLER MOUNT SET PROGRESS ',this.mediaKey,newState])
-			//this.setState(newState);
+			let progress = localStorage.getItem('progress_'+this.mediaKey);
+			let playing = localStorage.getItem('isPlaying');
+			let volume = localStorage.getItem('volume');
+			let mute = localStorage.getItem('mute');
+			let currentTrack = localStorage.getItem('currentTrack');
+			let newState = {}
+			newState.seekTo = (progress != null ? progress : 0)
+			newState.currentTrack = (currentTrack != null ? currentTrack : 0)
+			newState.isPlaying = ((playing ==='1') ? true : false)
+			newState.volume = (volume ? volume : 50)
+			newState.mute = ((mute ==='1') ? true : false)
+			//if (newState.mute) this.player.playerHandler.mute();
+			console.log(['CONTROLLER MOUNT SET PROGRESS ',this.mediaKey,newState])
+			this.setState(newState);
 		
 	}
 
@@ -167,7 +167,7 @@ export default class CastPlayerController extends Component {
 	onEnd() {
 		this.clearErrors()
 		console.log('controller on end')
-		this.setState({hideControls:false,isPlaying:false,seekTo:0});
+		this.setState({hideControls:false,isPlaying:false}); //,seekTo:0
 		clearTimeout(this.hideControlsTimeout);
 		this.hideControlsTimeout = null;
 		localStorage.setItem('isPlaying','0');
@@ -216,13 +216,13 @@ export default class CastPlayerController extends Component {
 	onProgress(progress) {
 		let that = this;
 		let track = this.getCurrentMedia();
-		
-		console.log(['PROGRESS',progress,this.state.isPlaying,this.state.hideControls,this.hideControlsTimeout]);
-		if (track.type ==='video' && !that.state.casting && this.state.isPlaying && !this.state.hideControls && this.hideControlsTimeout === null) {
-			console.log('HIDE CONTROLS timeout')
+		// && this.state.isPlaying && !this.state.hideControls
+		//console.log(['PROGRESS',progress,track.type,track,this.state.isPlaying,this.state.hideControls,this.hideControlsTimeout]);
+		if (track.type ==='video'  && !that.state.casting && this.hideControlsTimeout === null) {
+			//console.log('HIDE CONTROLS timeout')
 			clearTimeout(this.hideControlsTimeout);
 			this.hideControlsTimeout = setTimeout(function() {
-				console.log('HIDE CONTROLS ')
+				//console.log('HIDE CONTROLS ')
 				if (!that.state.casting) that.setState({hideControls:true})
 				that.hideControlsTimeout = null;
 			},2400);
@@ -297,14 +297,12 @@ export default class CastPlayerController extends Component {
         
         if (media) {
 			// ensure that a wrapping component is positioned to support absolute positioning of components.
-			let playerStyle = {position:'relative',width:'100%',height:'90%',top:'20px'}
+			let playerStyle = {position:'relative',width:'100%',height:'100%'}
 			return <div style={playerStyle} >
-			<div style={{color:'white',zIndex:190,backgroundColor:'red'}} >{this.state.casting ? 'CASTING' : 'NOTCAST'}</div>
-				
 			
-				<CastPlayerComponent ref62px={this.player} chromecastReceiverApplicationId={this.props.chromecastReceiverApplicationId}  media={media} isPlaying={this.state.isPlaying} seekTo={this.state.seekTo} mute={this.state.mute} volume={this.state.volume}  onError={this.onError} onPlay={this.onPlay}  onPause={this.onPause}  onProgress={this.onProgress}  onEnd={this.onEnd} onCast={this.onCast} onVolume={this.onVolume} onMute={this.onMute} casting={this.state.casting}  />
+				<CastPlayerComponent ref={this.player} chromecastReceiverApplicationId={this.props.chromecastReceiverApplicationId}  media={media} isPlaying={this.state.isPlaying} seekTo={this.state.seekTo} mute={this.state.mute} volume={this.state.volume}  onError={this.onError} onPlay={this.onPlay}  onPause={this.onPause}  onProgress={this.onProgress}  onEnd={this.onEnd} onCast={this.onCast} onVolume={this.onVolume} onMute={this.onMute} casting={this.state.casting}  />
 				
-				{!this.state.hideControls && <CastPlayerControls casting={this.state.casting} nextTrack={this.nextTrack} previousTrack={this.previousTrack} isPlaying={this.state.isPlaying} player={this.player} media={media} seekTo={this.state.seekTo} mute={this.state.mute} volume={this.state.volume} onError={this.onError} onPlay={this.onPlay}  onPause={this.onPause}  onProgress={this.onProgress}  onEnd={this.onEnd}  onVolume={this.onVolume} onMute={this.onMute} onShuffle={this.onShuffle}   onRepeat={this.onRepeat}shuffle={this.state.shuffle} repeat={this.state.repeat}  extraButtons={this.props.extraButtons}  startCast={this.startCast} stopCast={this.stopCast} />}
+				{!this.state.hideControls && <CastPlayerControls casting={this.state.casting} nextTrack={this.nextTrack} previousTrack={this.previousTrack} isPlaying={this.state.isPlaying} player={this.player} media={media} seekTo={this.state.seekTo} mute={this.state.mute} volume={this.state.volume} onError={this.onError} onPlay={this.onPlay}  onPause={this.onPause}  onProgress={this.onProgress}  onEnd={this.onEnd}  onVolume={this.onVolume} onMute={this.onMute} onShuffle={this.onShuffle}   onRepeat={this.onRepeat} shuffle={this.state.shuffle} repeat={this.state.repeat}  extraButtons={this.props.extraButtons}  startCast={this.startCast} stopCast={this.stopCast} />}
 			 </div>
 		} else {
 			return <b>No Media</b>;

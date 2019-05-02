@@ -53,7 +53,7 @@ export default function(castPlayer) {
 				//castPlayer.playerState = PLAYER_STATE.PLAYING;
 				this.load(castPlayer.props.media);
 		} else {
-			console.log(['PLAYER HANDLER PLAY loaded file  ',castPlayer.props.media])
+			console.log(['PLAYER HANDLER PLAY already loaded file  ',castPlayer.props.media])
 				
 			this.target.play();
 			castPlayer.playerState = PLAYER_STATE.PLAYING;
