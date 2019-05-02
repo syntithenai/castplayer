@@ -13,25 +13,36 @@
   <body>
     <iframe src='' frameborder='0' scrolling='no' marginheight='0' marginwidth='0' seamless='seamless' id='iframe'></iframe>
 
-    <script type='text/javascript' src='//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js'></script>
+    <script type='text/javascript' src='//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js'></script>
 
     <script type='text/javascript'>
       window.onload = function() {
-        window.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
-        castReceiverManager.onReady = function(event) {
-          window.castReceiverManager.setApplicationState('URL Cast ready...');
-        };
-        // messages on a custom namespace
-        var ns = 'urn:x-cast:com.url.cast';
-        window.messageBus = window.castReceiverManager.getCastMessageBus(ns);
-        window.messageBus.onMessage = function(e) {
-          var msg = JSON.parse(e.data);
-          window.messageBus.send(e.senderId, 'ok');
-          if (msg.type === 'iframe') updateFrame(msg.url);
-          if (msg.type === 'loc') updateLocation(msg.url);
-        };
+        //window.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
+        //castReceiverManager.onReady = function(event) {
+          //window.castReceiverManager.setApplicationState('URL Cast ready...');
+        //};
+     ////    messages on a custom namespace
+        //var ns = 'urn:x-cast:com.url.cast';
+        //window.messageBus = window.castReceiverManager.getCastMessageBus(ns);
+        //window.messageBus.onMessage = function(e) {
+          //var msg = JSON.parse(e.data);
+          //console.log(['MESSAGEBUS',msg,e])
+          //window.messageBus.send(e.senderId, 'ok');
+          ////if (msg.type === 'iframe') updateFrame(msg.url);
+          ////if (msg.type === 'loc') updateLocation(msg.url);
+        //};
+        
+        const CUSTOM_CHANNEL = 'urn:x-cast:com.syntithenai.cast';
+		const context = cast.framework.CastReceiverContext.getInstance();
+		context.addCustomMessageListener(CUSTOM_CHANNEL, function(customEvent) {
+		  console.log(['CUSTOM EVENT',customEvent])
+		  //window.messageBus.send(e.senderId, 'custom event');
+		  // handle customEvent.
+		});
+        context.start();
+        
         // initialize CastReceiverManager
-        window.castReceiverManager.start({statusText: 'URL Cast starting...'});
+        //window.castReceiverManager.start({statusText: 'URL Cast starting...'});
       };
       // Update the iframe src
       // warning: watch out for X-Frame-Options -> DENY

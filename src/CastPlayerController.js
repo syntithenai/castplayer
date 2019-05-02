@@ -1,7 +1,7 @@
 /* global window */
 import React, { Component } from 'react'
 
-import CastPlayer from './CastPlayer'
+import CastPlayerComponent from './CastPlayerComponent'
 import CastPlayerControls from './CastPlayerControls'
 
 import md5 from 'md5'
@@ -40,53 +40,52 @@ export default class CastPlayerController extends Component {
 		this.onShuffle = this.onShuffle.bind(this);
 		this.onRepeat = this.onRepeat.bind(this);
 		this.showControls = this.showControls.bind(this);
+		this.startCast = this.startCast.bind(this)
+		this.stopCast = this.stopCast.bind(this)
 		
 		this.mediaKey = null;
 		this.hideControlsTimeout = null;
 		window.addEventListener("mousemove", this.showControls);
-		//this.getCurrentMedia = this.getCurrentMedia.bind(this);
-		//this.getCurrentMedia = this.getCurrentMedia.bind(this);
-		//this.getCurrentMedia = this.getCurrentMedia.bind(this);
-		
 	}
 	
 	componentDidMount() {
 		// temp disable
 			this.mediaKey = md5(this.getCurrentMedia());
-			let progress = localStorage.getItem('progress_'+this.mediaKey);
-			let playing = localStorage.getItem('isPlaying');
-			let volume = localStorage.getItem('volume');
-			let mute = localStorage.getItem('mute');
-			let currentTrack = localStorage.getItem('currentTrack');
-			let newState = {}
-			newState.seekTo = (progress != null ? progress : 0)
-			newState.currentTrack = (currentTrack != null ? currentTrack : 0)
-			newState.isPlaying = ((playing ==='1') ? true : false)
-			newState.volume = (volume ? volume : 50)
-			newState.mute = ((mute ==='1') ? true : false)
-			//if (newState.mute) this.player.playerHandler.mute();
-			console.log(['CONTROLLER MOUNT SET PROGRESS ',this.mediaKey,newState])
-			this.setState(newState);
+			//let progress = localStorage.getItem('progress_'+this.mediaKey);
+			//let playing = localStorage.getItem('isPlaying');
+			//let volume = localStorage.getItem('volume');
+			//let mute = localStorage.getItem('mute');
+			//let currentTrack = localStorage.getItem('currentTrack');
+			//let newState = {}
+			//newState.seekTo = (progress != null ? progress : 0)
+			//newState.currentTrack = (currentTrack != null ? currentTrack : 0)
+			//newState.isPlaying = ((playing ==='1') ? true : false)
+			//newState.volume = (volume ? volume : 50)
+			//newState.mute = ((mute ==='1') ? true : false)
+			////if (newState.mute) this.player.playerHandler.mute();
+			//console.log(['CONTROLLER MOUNT SET PROGRESS ',this.mediaKey,newState])
+			//this.setState(newState);
 		
 	}
 
 	componentDidUpdate(props) {
 		if (props.media !== this.props.media) {
 			this.mediaKey = md5(this.getCurrentMedia());
-			let progress = localStorage.getItem('progress_'+this.mediaKey);
-			let playing = localStorage.getItem('isPlaying');
-			let volume = localStorage.getItem('volume');
-			let mute = localStorage.getItem('mute');
-			let currentTrack = localStorage.getItem('currentTrack');
-			let newState = {}
-			newState.seekTo = (progress != null ? progress : 0)
-			newState.isPlaying = ((playing ==='1') ? true : false)
-			newState.volume = (volume ? volume : 50)
-			newState.mute = ((mute ==='1') ? true : false)
-			newState.currentTrack = (currentTrack != null ? currentTrack : 0)
-			if (newState.mute) this.player.playerHandler.mute();
-			console.log(['CONTROLLER UPDATE SET PROGRESS ',this.mediaKey,newState])
-			this.setState(newState);
+			// TODO RESTORE THIS - LOAD FROM LOCALSTORAGE ON PAGE RELOAD. ...
+			//let progress = localStorage.getItem('progress_'+this.mediaKey);
+			//let playing = localStorage.getItem('isPlaying');
+			//let volume = localStorage.getItem('volume');
+			//let mute = localStorage.getItem('mute');
+			//let currentTrack = localStorage.getItem('currentTrack');
+			//let newState = {}
+			//newState.seekTo = (progress != null ? progress : 0)
+			//newState.isPlaying = ((playing ==='1') ? true : false)
+			//newState.volume = (volume ? volume : 50)
+			//newState.mute = ((mute ==='1') ? true : false)
+			//newState.currentTrack = (currentTrack != null ? currentTrack : 0)
+			//if (newState.mute) this.player.playerHandler.mute();
+			//console.log(['CONTROLLER UPDATE SET PROGRESS ',this.mediaKey,newState])
+			//this.setState(newState);
 		}
 	}
 
@@ -102,6 +101,7 @@ export default class CastPlayerController extends Component {
 	previousTrack() {
 		this.clearErrors()
 		let currentTrack = this.state.currentTrack;
+		// TODO IMPLEMENT REPEAT SINGLE
 		//if (this.state.repeat) {
 			//this.setState({seekTo:0});
 			//this.player.playerHandler.load(true,true)
@@ -122,14 +122,13 @@ export default class CastPlayerController extends Component {
 	nextTrack() {
 		this.clearErrors()
 		let currentTrack = this.state.currentTrack;
+		// TODO IMPLEMENT REPEAT SINGLE
 		//if (this.state.repeat) {
 			//this.setState({seekTo:0});
 			//this.player.playerHandler.load(true,true)
 		//} else 
 		if (this.state.shuffle) {
 			let newTrack = (currentTrack +Math.floor(Math.random() * (this.props.playlist.length + 1)))%(this.props.playlist.length )
-			//Math.floor(Math.random()*this.props.playlist.length -1) 
-			//(currentTrack + Math.floor(Math.random() * (this.props.playlist.length -1)))%(this.props.playlist.length );
 			//console.log(['NEXT SHUFFLE',newTrack])
 			localStorage.setItem('currentTrack',newTrack);
 			this.setState({seekTo:0,currentTrack:newTrack})
@@ -160,7 +159,7 @@ export default class CastPlayerController extends Component {
 		this.clearErrors()
 		console.log('controller on pause')
 		this.setState({hideControls:false,isPlaying:false});
-		clearTimeout(this.hideControlsTimeout);
+		if (this.hideControlsTimeout) clearTimeout(this.hideControlsTimeout);
 		this.hideControlsTimeout = null;
 		localStorage.setItem('isPlaying','0');
 	}
@@ -168,7 +167,7 @@ export default class CastPlayerController extends Component {
 	onEnd() {
 		this.clearErrors()
 		console.log('controller on end')
-		this.setState({hideControls:false,isPlaying:false});
+		this.setState({hideControls:false,isPlaying:false,seekTo:0});
 		clearTimeout(this.hideControlsTimeout);
 		this.hideControlsTimeout = null;
 		localStorage.setItem('isPlaying','0');
@@ -184,15 +183,15 @@ export default class CastPlayerController extends Component {
 		if (failCount < 3) {
 			this.addError();
 			setTimeout(function() {
-				//that._player.current.play();
-				that.play();
+				if (that.player && that.player.current) that.player.current.play();
+				//that.play();
 			   // that.functions.saveMeekaToLocalStorage();
 			},1000);                    
 		} else if (failCount < 100) {
 			this.addError();
 			if (Math.random() >= 0.4) this.nextTrack();
 			setTimeout(function() {
-				that.play();
+				if (that.player && that.player.current) that.player.current.play();
 			},1000);            
 		}
 	}	
@@ -260,6 +259,18 @@ export default class CastPlayerController extends Component {
 		this.setState({repeat:repeat,shuffle:false});
 	}
 	
+	
+	startCast = function() {
+		console.log(['START CAST BUTTON'])
+		this.player.current.startCast()
+   }
+	
+	stopCast = function() {
+		console.log(['STOP CAST BUTTON'])
+		this.player.current.stopCast()
+	}
+	
+	
 	render() {
         let media = this.getCurrentMedia()
                 //let mediaProps = {
@@ -286,11 +297,14 @@ export default class CastPlayerController extends Component {
         
         if (media) {
 			// ensure that a wrapping component is positioned to support absolute positioning of components.
-			let playerStyle = {position:'relative',width:'100%',height:'100%'}
+			let playerStyle = {position:'relative',width:'100%',height:'90%',top:'20px'}
 			return <div style={playerStyle} >
-				<CastPlayer ref={this.player} chromecastReceiverApplicationId='4F8B3483'  media={media} isPlaying={this.state.isPlaying} seekTo={this.state.seekTo} mute={this.state.mute} volume={this.state.volume}  onError={this.onError} onPlay={this.onPlay}  onPause={this.onPause}  onProgress={this.onProgress}  onEnd={this.onEnd} onCast={this.onCast} onVolume={this.onVolume} onMute={this.onMute} />
+			<div style={{color:'white',zIndex:190,backgroundColor:'red'}} >{this.state.casting ? 'CASTING' : 'NOTCAST'}</div>
 				
-				{!this.state.hideControls && <CastPlayerControls casting={this.state.casting} nextTrack={this.nextTrack} previousTrack={this.previousTrack} isPlaying={this.state.isPlaying} player={this.player} media={media} seekTo={this.state.seekTo} mute={this.state.mute} volume={this.state.volume} onError={this.onError} onPlay={this.onPlay}  onPause={this.onPause}  onProgress={this.onProgress}  onEnd={this.onEnd}  onVolume={this.onVolume} onMute={this.onMute} onShuffle={this.onShuffle}   onRepeat={this.onRepeat}shuffle={this.state.shuffle} repeat={this.state.repeat}  extraButtons={this.props.extraButtons} />}
+			
+				<CastPlayerComponent ref62px={this.player} chromecastReceiverApplicationId={this.props.chromecastReceiverApplicationId}  media={media} isPlaying={this.state.isPlaying} seekTo={this.state.seekTo} mute={this.state.mute} volume={this.state.volume}  onError={this.onError} onPlay={this.onPlay}  onPause={this.onPause}  onProgress={this.onProgress}  onEnd={this.onEnd} onCast={this.onCast} onVolume={this.onVolume} onMute={this.onMute} casting={this.state.casting}  />
+				
+				{!this.state.hideControls && <CastPlayerControls casting={this.state.casting} nextTrack={this.nextTrack} previousTrack={this.previousTrack} isPlaying={this.state.isPlaying} player={this.player} media={media} seekTo={this.state.seekTo} mute={this.state.mute} volume={this.state.volume} onError={this.onError} onPlay={this.onPlay}  onPause={this.onPause}  onProgress={this.onProgress}  onEnd={this.onEnd}  onVolume={this.onVolume} onMute={this.onMute} onShuffle={this.onShuffle}   onRepeat={this.onRepeat}shuffle={this.state.shuffle} repeat={this.state.repeat}  extraButtons={this.props.extraButtons}  startCast={this.startCast} stopCast={this.stopCast} />}
 			 </div>
 		} else {
 			return <b>No Media</b>;

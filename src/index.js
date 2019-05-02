@@ -1,7 +1,6 @@
-import CastPlayer from './CastPlayer'
+import CastPlayerComponent from './CastPlayerComponent'
 import CastReceiver from './CastReceiver'
 import CastPlayerControls from './CastPlayerControls'
 import CastPlayerController from './CastPlayerController'
 
-export default CastPlayer;
-export {CastPlayerControls,CastPlayerController,CastReceiver}
+export {CastPlayerComponent,CastPlayerControls,CastPlayerController,CastReceiver}

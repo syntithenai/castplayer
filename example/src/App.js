@@ -7,8 +7,12 @@ import samplePlaylist from './sample_playlist'
 import {CastPlayerController,CastReceiver} from 'castplayer'
 import {FaList as ListButton} from 'react-icons/fa';
 import {FaHeart as LikeButton} from 'react-icons/fa';
-
-//import LikeButton from './LikeButton'
+/**
+ * Top Level Component for castplayer demo
+ * - note additional buttons right/left for player controls
+ * - note route required for cast receiver
+ * - see public/index.html for src tags to include google cast libraries
+ */
 
 export default class App extends Component {
 	render() {
@@ -19,12 +23,12 @@ export default class App extends Component {
 		return <Router>
 				<Switch>
 					<PropsRoute  path='/cast' component={CastReceiver}  />
-					
-					<PropsRoute path='/' component={CastPlayerController} chromecastReceiverApplicationId='089C49EE' playlist={samplePlaylist} extraButtons={extraButtons} />
+
+					<PropsRoute path='/' component={CastPlayerController} chromecastReceiverApplicationId='089C49EE' playlist={samplePlaylist} currentTrack={0} extraButtons={extraButtons} />
 				</Switch>
 			</Router>
 	}
 
 }
-//
+					
 				

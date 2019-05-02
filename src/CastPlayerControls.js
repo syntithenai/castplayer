@@ -1,7 +1,3 @@
-/* global window */
-/* global cast */
-/* global chrome */
-
 
 import React, { Component } from 'react';
 
@@ -17,7 +13,8 @@ import {FaRandom as ShuffleButton} from 'react-icons/fa';
 
 
 
-import chromecastIcon from './chromecast.svg'
+//import chromecastIcon from './chromecast.svg'
+//import chromecastOffIcon from './chromecast-off.svg'
 
 
 export default  class CastPlayerControls extends Component {
@@ -34,7 +31,7 @@ export default  class CastPlayerControls extends Component {
 		this.clickVolume = this.clickVolume.bind(this);
 		//this.clickMute = this.clickMute.bind(this);
 		this.togglePlayback = this.togglePlayback.bind(this);
-		this.showAllControls = this.showAllControls.bind(this)
+		//this.showAllControls = this.showAllControls.bind(this)
 		this.unMute = this.unMute.bind(this)
 		this.mute = this.mute.bind(this)
 		//this.repeat = this.repeat.bind(this)
@@ -70,7 +67,7 @@ export default  class CastPlayerControls extends Component {
 	}
 	
 	clickProgress = function(e) {
-		 if (this.props.media) {
+		 if (this.props.media && this.props.player.current && this.props.player.current.playerHandler) {
 			 // width based on parent progress bar so determine which one was clicked
 			 let width = e.target.offsetWidth;
 			 if (e.target.className === 'progressbarinner') {
@@ -109,6 +106,8 @@ export default  class CastPlayerControls extends Component {
 	mute = function(val) {
 		this.props.player.current.playerHandler.mute();
 	}
+	
+	
 	
 	//repeat = function(val) {
 		//this.props.onRepeat(val);
@@ -150,13 +149,13 @@ export default  class CastPlayerControls extends Component {
 	};
      
 	
-	showAllControls= function(e) {
-		if (this.state.extendedControls) {
-			this.setState({showExtendedControls:false});
-		} else {
-			this.setState({showExtendedControls:true});
-		}
-	}
+	//showAllControls= function(e) {
+		//if (this.state.extendedControls) {
+			//this.setState({showExtendedControls:false});
+		//} else {
+			//this.setState({showExtendedControls:true});
+		//}
+	//}
 
 	render() {
 		
@@ -165,17 +164,17 @@ export default  class CastPlayerControls extends Component {
 		let isPlaying = this.props.isPlaying;
 		//this.props.player.current && this.props.player.current.playerHandler ? this.props.player.current.playerHandler.isPlaying() : false;
 		let leftButtons = this.props.extraButtons.left.map(function(button) {
-			return <button className='btn' onClick={button.onClick} size='33'  >{button.label}</button>
+			return <button key={button} className='btn' onClick={button.onClick} size='33'  >{button.label}</button>
 		});
 		let rightButtons = this.props.extraButtons.right.map(function(button) {
-			return <button className='btn'  onClick={button.onClick} size='33' >{button.label}</button>
+			return <button key={button} className='btn'  onClick={button.onClick} size='33' >{button.label}</button>
 		});
 		 let controlBlockHeight = this.state.showExtendedControls ? '9em' : '7em';
 		 
             let buttonSize=33;
             let playBoost=15;
-            let castButtonStyle = {position: 'fixed',top:0,right:0, width: '40px',height: '40px',zIndex: 100}
-			let hideCastButton = this.props.casting ? true  : false; //this.playerHandler.targetType === 'remote' ? true :false
+            let castButtonStyle = {position: 'fixed',top:0,right:0, width: '40px',height: '40px',zIndex: 1000}
+			let hideCastButton = this.props.casting === true ? true  : false; //this.playerHandler.targetType === 'remote' ? true :false
 //player.current.playerHandler.getCurrentMediaTime()        
             let mediaTime = this.getDurationString(this.props.seekTo);
             let mediaDuration = this.props.player.current && this.props.player.current.playerHandler ? this.getDurationString(this.props.player.current.playerHandler.getMediaDuration()) : ''
@@ -187,9 +186,13 @@ export default  class CastPlayerControls extends Component {
 			if (this.props.player.current && this.props.player.current.playerHandler) volumePercent=this.props.volume+'%';
             
             //console.log(progressPercent);
-            return <div>
-        {!hideCastButton && <google-cast-launcher id="castbutton" style={castButtonStyle}></google-cast-launcher>}
-		{hideCastButton && <span style={castButtonStyle} onClick={() => {this.props.player.current.playerHandler.disconnect()}} ><img src={chromecastIcon} style={{color:'blue',height:'40px'}} /></span>}
+        //{!hideCastButton && <google-cast-launcher id="castbutton" style={castButtonStyle}></google-cast-launcher>}
+		//{hideCastButton && <span style={castButtonStyle} onClick={() => {this.props.player.current.playerHandler.disconnect()}} ><img src={chromecastIcon} style={{color:'blue',height:'40px'}} /></span>}
+		 //{!hideCastButton && <span style={castButtonStyle} onClick={() => {this.props.startCast()}} ><img src={chromecastOffIcon} style={{height:'40px'}} /></span>}
+		//{hideCastButton && <span style={castButtonStyle} onClick={() => {this.props.stopCast()}} ><img src={chromecastIcon} style={{height:'40px'}} /></span>}
+		    return <div>
+				<div style={castButtonStyle} ><google-cast-launcher ></google-cast-launcher></div>
+       
 				<div className="playcontrols" style={{zIndex:'999',position: 'fixed', bottom: '0', width:'100%', backgroundColor:'black', height: controlBlockHeight,padding: '0.05em', border:'1px solid black'}}>
 				  <div className='progressbar' onClick={(e) => this.clickProgress(e)} style={{height: '0.8em',width:'100%', backgroundColor:'lightgrey', marginBottom: '0.2em',opacity:'0.8'}} >
 					<div className='progressbarinner' style={{height: '0.8em',width:progressPercent, backgroundColor:'green',opacity:'0.8'}} >&nbsp;</div>

@@ -28,7 +28,7 @@ import PLAYER_STATE from './playerStateConstants';
  *  - updateDisplayMessage()
  */
 export default function(castPlayer) {
-    this.target = {};
+	this.target = {};
 	//console.log(['NEW PLAYER HANDLER'])
     this.setTarget= function(target) {
 	//		console.log(['NEW PLAYER HANDLER SET TARGET',target])
@@ -102,7 +102,7 @@ export default function(castPlayer) {
             //castPlayer.mediaContents[castPlayer.currentMediaIndex]['description'];
 
         this.target.load(media,autoPlay);
-        this.updateDisplayMessage();
+       // this.updateDisplayMessage();
     };
 
     this.loaded = function(autoPlay) {
@@ -112,20 +112,24 @@ export default function(castPlayer) {
         castPlayer.currentMediaDuration = this.getMediaDuration();
         //  castPlayer.updateMediaDuration();
         castPlayer.playerState = PLAYER_STATE.LOADED;
-        if (castPlayer.props.seekTo > 0) {
-            console.log(['PLAYER HANDLER loaded seek to',castPlayer.props.seekTo])
-            this.seekTo(castPlayer.props.seekTo);
-        }
-        if (!autoPlay) { //castPlayer.props.isPlaying) {
+        //autoPlay) { //
+        if (!autoPlay) {
 		    console.log(['PLAYER HANDLER no start playing'])
-            this.play();
-			setTimeout(function() {
+            //this.play();
+			//setTimeout(function() {
 				that.pause();
-			},500);
+			//},50);
 		} else {
 		    console.log(['PLAYER HANDLER start playing'])
         	this.play();
 		}
+		 if (castPlayer.props.seekTo > 0) {
+            console.log(['PLAYER HANDLER loaded seek to',castPlayer.props.seekTo])
+       //     setTimeout(function() {
+				that.seekTo(castPlayer.props.seekTo);
+        //	},500);
+		}
+       
 		castPlayer.startProgressTimer();
 		//  this.updateDisplayMessage();
     };
@@ -138,10 +142,7 @@ export default function(castPlayer) {
         return this.target.getMediaDuration();
     };
 
-    this.updateDisplayMessage = function () {
-        this.target.updateDisplayMessage();
-    }
-;
+   
     this.setVolume = function(volumeSliderPosition) {
 		console.log(['PLAYER HANDLER SET VOLUME',volumeSliderPosition,castPlayer.props.onVolume])
         this.target.setVolume(volumeSliderPosition);
@@ -168,7 +169,7 @@ export default function(castPlayer) {
          console.log(['PLAYER HANDLER seek',time])
          this.target.seekTo(time);
          castPlayer.currentMediaTime = time;
-         if (castPlayer.props.onProgress) castPlayer.props.onProgress(time)        
+         //if (castPlayer.props.onProgress) castPlayer.props.onProgress(time)        
         //this.updateDisplayMessage();
     };
 };
